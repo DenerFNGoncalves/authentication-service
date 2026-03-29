@@ -1,4 +1,4 @@
-import { describe, it, expect,beforeEach, jest } from '@jest/globals';
+import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 import { SessionService, type SessionServiceConfig } from '@/application/services/session';
 import type { PasswordHasher } from '@/application/ports/password-hasher';
 import type { Logger } from '@/application/ports/logger';
@@ -8,183 +8,184 @@ import { DuplicateEntityError } from '@/domain/errors/duplicate-entity-error';
 import { SessionCreationError } from '@/application/errors/session-creation-error';
 
 describe('Session Service', () => {
-  let logger: jest.Mocked<Logger>;
-  let tokenGenerator: jest.Mocked<TokenGenerator>;
-  let passwordHasher: jest.Mocked<PasswordHasher>;
-  let sessionRepository: jest.Mocked<SessionRepository>;
-  let sessionService: SessionService;
-  let userId: string;
+	let logger: jest.Mocked<Logger>;
+	let tokenGenerator: jest.Mocked<TokenGenerator>;
+	let passwordHasher: jest.Mocked<PasswordHasher>;
+	let sessionRepository: jest.Mocked<SessionRepository>;
+	let sessionService: SessionService;
+	let userId: string;
 
-  beforeEach(() => {
-    userId = "test-user-id";
+	beforeEach(() => {
+		userId = 'test-user-id';
 
-    logger = {
-      debug: jest.fn(),
-      info: jest.fn(),
-      warn: jest.fn(),
-      error: jest.fn(),
-      fatal: jest.fn(),
-    };
+		logger = {
+			debug: jest.fn(),
+			info: jest.fn(),
+			warn: jest.fn(),
+			error: jest.fn(),
+			fatal: jest.fn()
+		};
 
-    tokenGenerator = {
-      generate: jest.fn(),
-    } as unknown as jest.Mocked<TokenGenerator>;
+		tokenGenerator = {
+			generate: jest.fn()
+		} as unknown as jest.Mocked<TokenGenerator>;
 
-    passwordHasher = {
-      hash: jest.fn()
-    } as unknown as jest.Mocked<PasswordHasher>;
- 
-    sessionRepository = {
-      create: jest.fn(),
-    } as unknown as jest.Mocked<SessionRepository>;
+		passwordHasher = {
+			hash: jest.fn()
+		} as unknown as jest.Mocked<PasswordHasher>;
 
-    const configSession: SessionServiceConfig = {
-      creationAttempts: 3,
-      refreshTokenTtl: "15m",
-      absoluteSessionTtl: "30d"
-    }
+		sessionRepository = {
+			create: jest.fn()
+		} as unknown as jest.Mocked<SessionRepository>;
 
-    sessionService = new SessionService(logger, sessionRepository, tokenGenerator, passwordHasher, configSession);  
-  });
+		const configSession: SessionServiceConfig = {
+			creationAttempts: 3,
+			refreshTokenTtl: '15m',
+			absoluteSessionTtl: '30d'
+		};
 
-  it('Should create session', async () => {
+		sessionService = new SessionService(
+			logger,
+			sessionRepository,
+			tokenGenerator,
+			passwordHasher,
+			configSession
+		);
+	});
 
-    tokenGenerator.generate.mockReturnValue("refresh-token");  
-    passwordHasher.hash.mockResolvedValue("hashed-token");
+	it('Should create session', async () => {
+		tokenGenerator.generate.mockReturnValue('refresh-token');
+		passwordHasher.hash.mockResolvedValue('hashed-token');
 
-    sessionRepository.create.mockResolvedValue({
-      id: "test-session-id",
-      refreshTokenHash: "hashed-token",
-      userId: userId,
-      ipAddress: null,
-      userAgent: null,
-      deviceName: null,
-      absoluteExpiresAt: null,
-      lastUsedAt: new Date(),
-      expiresAt: new Date(),
-      revokedAt: null,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    });
+		sessionRepository.create.mockResolvedValue({
+			id: 'test-session-id',
+			refreshTokenHash: 'hashed-token',
+			userId: userId,
+			ipAddress: null,
+			userAgent: null,
+			deviceName: null,
+			absoluteExpiresAt: null,
+			lastUsedAt: new Date(),
+			expiresAt: new Date(),
+			revokedAt: null,
+			createdAt: new Date(),
+			updatedAt: new Date()
+		});
 
-    const result = await sessionService.create(userId);
+		const result = await sessionService.create(userId);
 
-    expect(tokenGenerator.generate).toHaveBeenCalledWith();
-    expect(sessionRepository.create).toHaveBeenCalledWith({
-      userId: userId,
-      refreshTokenHash: "hashed-token",
-      absoluteExpiresAt: expect.any(Date),
-      expiresAt: expect.any(Date)
-    });
-    
-    expect(sessionRepository.create).toHaveBeenCalledTimes(1);
+		expect(tokenGenerator.generate).toHaveBeenCalledWith();
+		expect(sessionRepository.create).toHaveBeenCalledWith({
+			userId: userId,
+			refreshTokenHash: 'hashed-token',
+			absoluteExpiresAt: expect.any(Date),
+			expiresAt: expect.any(Date)
+		});
 
-    expect(logger.info).toHaveBeenCalledWith('Session created', {
-      userId,
-      sessionId: "test-session-id",
-      expiresAt: expect.any(Date),
-      event: "auth.session.create",
-      result: "success"
-    });
+		expect(sessionRepository.create).toHaveBeenCalledTimes(1);
 
-    expect(result).toEqual({
-      sessionId: "test-session-id",
-      expiresAt: expect.any(Date),
-      refreshToken: "refresh-token",
-    });
-  }); 
+		expect(logger.info).toHaveBeenCalledWith('Session created', {
+			userId,
+			sessionId: 'test-session-id',
+			expiresAt: expect.any(Date),
+			event: 'auth.session.create',
+			result: 'success'
+		});
 
-  it('should retry session creation when duplicate error occurs', async () => {
-    tokenGenerator.generate.mockReturnValue('refresh-token');
-    passwordHasher.hash.mockResolvedValue('hashed-token');
+		expect(result).toEqual({
+			sessionId: 'test-session-id',
+			expiresAt: expect.any(Date),
+			refreshToken: 'refresh-token'
+		});
+	});
 
-    sessionRepository.create
-        .mockRejectedValueOnce(new DuplicateEntityError('Session'))
-        .mockResolvedValueOnce({
-          id: "test-session-id",
-          refreshTokenHash: "hashed-token",
-          userId: userId,
-          ipAddress: null,
-          userAgent: null,
-          deviceName: null,
-          absoluteExpiresAt: null,
-          lastUsedAt: new Date(),
-          expiresAt: new Date(),
-          revokedAt: null,
-          createdAt: new Date(),
-          updatedAt: new Date()
-        });
+	it('should retry session creation when duplicate error occurs', async () => {
+		tokenGenerator.generate.mockReturnValue('refresh-token');
+		passwordHasher.hash.mockResolvedValue('hashed-token');
 
-      const result = await sessionService.create(userId);
+		sessionRepository.create
+			.mockRejectedValueOnce(new DuplicateEntityError('Session'))
+			.mockResolvedValueOnce({
+				id: 'test-session-id',
+				refreshTokenHash: 'hashed-token',
+				userId: userId,
+				ipAddress: null,
+				userAgent: null,
+				deviceName: null,
+				absoluteExpiresAt: null,
+				lastUsedAt: new Date(),
+				expiresAt: new Date(),
+				revokedAt: null,
+				createdAt: new Date(),
+				updatedAt: new Date()
+			});
 
-      expect(result.sessionId).toBe('test-session-id');
-      expect(logger.info).toHaveBeenNthCalledWith(1, 'Attempting to create session', {
-        userId,
-        attempt: 1,
-        event: "auth.session.create",
-        stage: "attempt"
-      });
+		const result = await sessionService.create(userId);
 
-      expect(sessionRepository.create).toHaveBeenCalledTimes(2);
+		expect(result.sessionId).toBe('test-session-id');
+		expect(logger.info).toHaveBeenNthCalledWith(1, 'Attempting to create session', {
+			userId,
+			attempt: 1,
+			event: 'auth.session.create',
+			stage: 'attempt'
+		});
 
-      expect(logger.warn).toHaveBeenNthCalledWith(1, 'Duplicate session detected, retrying session creation', {
-        userId,
-        attempt: 1,
-        event: "auth.session.create",
-        result: "failure",
-        reason: "duplicate_session"
-      });
+		expect(sessionRepository.create).toHaveBeenCalledTimes(2);
 
-      expect(logger.info).toHaveBeenNthCalledWith(2, 'Attempting to create session', {
-        userId,
-        attempt: 2,
-        event: "auth.session.create",
-        stage: "attempt"
-      });
-  });
-  
-  it('should throw SessionCreationError on unexpected error', async () => {
-    tokenGenerator.generate.mockReturnValue('refresh-token');
-    passwordHasher.hash.mockResolvedValue('hashed-token');
+		expect(logger.warn).toHaveBeenNthCalledWith(
+			1,
+			'Duplicate session detected, retrying session creation',
+			{
+				userId,
+				attempt: 1,
+				event: 'auth.session.create',
+				result: 'failure',
+				reason: 'duplicate_session'
+			}
+		);
 
-    sessionRepository.create.mockRejectedValue(new Error('db down'));
+		expect(logger.info).toHaveBeenNthCalledWith(2, 'Attempting to create session', {
+			userId,
+			attempt: 2,
+			event: 'auth.session.create',
+			stage: 'attempt'
+		});
+	});
 
-    await expect(sessionService.create(userId))
-      .rejects
-      .toBeInstanceOf(SessionCreationError);
+	it('should throw SessionCreationError on unexpected error', async () => {
+		tokenGenerator.generate.mockReturnValue('refresh-token');
+		passwordHasher.hash.mockResolvedValue('hashed-token');
 
-    expect(logger.error).toHaveBeenCalledWith('Unexpected error during session creation', {
-      userId,
-      attempt: 1,
-      event: "auth.session.create",
-      result: "failure",
-      err: expect.any(Error)
-    });
+		sessionRepository.create.mockRejectedValue(new Error('db down'));
 
-  });
+		await expect(sessionService.create(userId)).rejects.toBeInstanceOf(SessionCreationError);
 
-  it('should throw SessionCreationError after max retry attempts', async () => {
-    tokenGenerator.generate.mockReturnValue('refresh-token');
-    passwordHasher.hash.mockResolvedValue('hashed-token');
+		expect(logger.error).toHaveBeenCalledWith('Unexpected error during session creation', {
+			userId,
+			attempt: 1,
+			event: 'auth.session.create',
+			result: 'failure',
+			err: expect.any(Error)
+		});
+	});
 
-    sessionRepository.create.mockRejectedValue(
-      new DuplicateEntityError('Session')
-    );
+	it('should throw SessionCreationError after max retry attempts', async () => {
+		tokenGenerator.generate.mockReturnValue('refresh-token');
+		passwordHasher.hash.mockResolvedValue('hashed-token');
 
-    await expect(sessionService.create(userId))
-      .rejects
-      .toBeInstanceOf(SessionCreationError);
+		sessionRepository.create.mockRejectedValue(new DuplicateEntityError('Session'));
 
-    expect(sessionRepository.create).toHaveBeenCalledTimes(3);
+		await expect(sessionService.create(userId)).rejects.toBeInstanceOf(SessionCreationError);
 
-    expect(logger.error).toHaveBeenCalledWith('Failed to create session after maximum attempts', {
-      userId,
-      attempt: 4,
-      event: "auth.session.create",
-      result: "failure",
-      reason: "max_attempts_reached",
-      err: expect.any(Error)
-    });
-  });
+		expect(sessionRepository.create).toHaveBeenCalledTimes(3);
 
+		expect(logger.error).toHaveBeenCalledWith('Failed to create session after maximum attempts', {
+			userId,
+			attempt: 4,
+			event: 'auth.session.create',
+			result: 'failure',
+			reason: 'max_attempts_reached',
+			err: expect.any(Error)
+		});
+	});
 });

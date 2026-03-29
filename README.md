@@ -74,12 +74,11 @@ Implements adapters that interact with external systems:
 - HTTP layer
 - repository implementations
 - security
-    - password hashing
-    - JWT generation
-    - token validation
+  - password hashing
+  - JWT generation
+  - token validation
 
 ---
-
 
 # Authentication Model
 
@@ -92,7 +91,7 @@ The service implements **JWT-based authentication with refresh token rotation**.
 Short-lived token used for authentication.
 
 Typical lifetime:
- 15 minutes
+15 minutes
 
 Sent in requests using:
 Authorization: Bearer <token>

@@ -1,13 +1,13 @@
 {
-  "version": "7",
-  "dialect": "postgresql",
-  "entries": [
-    {
-      "idx": 0,
-      "version": "7",
-      "when": 1771856006055,
-      "tag": "0000_db_auth_20260223T141317Z",
-      "breakpoints": true
-    }
-  ]
+	"version": "7",
+	"dialect": "postgresql",
+	"entries": [
+		{
+			"idx": 0,
+			"version": "7",
+			"when": 1771856006055,
+			"tag": "0000_db_auth_20260223T141317Z",
+			"breakpoints": true
+		}
+	]
 }

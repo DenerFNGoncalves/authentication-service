@@ -1,11 +1,11 @@
-import { SECURITY } from "./env";
+import { SECURITY } from './env';
 
 export type JWSConfig = {
-  accessSecret: string;
-}
+	accessSecret: string;
+};
 
 export function loadJWSConfig(): JWSConfig {
-  return Object.freeze({
-    accessSecret: SECURITY.JWT_ACCESS_SECRET
-  });
+	return Object.freeze({
+		accessSecret: SECURITY.JWT_ACCESS_SECRET
+	});
 }

@@ -1,3 +1,3 @@
 export interface AccessTokenGenerator {
-    createAccessToken(userId: string, sessionId: string): string;
+	createAccessToken(userId: string, sessionId: string): string;
 }

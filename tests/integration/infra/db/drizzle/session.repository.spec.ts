@@ -7,82 +7,85 @@ import { DuplicateEntityError } from '@/domain/errors/duplicate-entity-error';
 import { PersistenceError } from '@/domain/errors/persistence-error';
 
 describe('DrizzleSessionRepository (integration)', () => {
-  let db;
-  let repository: DrizzleSessionRepository;
-  
-  let logger: jest.Mocked<Logger>;
+	let db;
+	let repository: DrizzleSessionRepository;
 
-  beforeAll(async () => {
-    db = await setupTestDatabase();
+	let logger: jest.Mocked<Logger>;
 
-    logger = {
-      debug: jest.fn(),
-      info: jest.fn(),
-      warn: jest.fn(),
-      error: jest.fn(),
-      fatal: jest.fn(),
-    };
-    repository = new DrizzleSessionRepository(logger, db);
-  }, 30000);
+	beforeAll(async () => {
+		db = await setupTestDatabase();
 
-  afterAll(async () => {
-    await teardownTestDatabase();
-  });
+		logger = {
+			debug: jest.fn(),
+			info: jest.fn(),
+			warn: jest.fn(),
+			error: jest.fn(),
+			fatal: jest.fn()
+		};
+		repository = new DrizzleSessionRepository(logger, db);
+	}, 30000);
 
-  it('should create a session for a user', async () => {
-    const id = idsUserTest[0] || 'str';
-    `test-refresh-token-${Date.now()}`
-    const refreshTokenHash = `test-refresh-token-${Date.now()}`;
+	afterAll(async () => {
+		await teardownTestDatabase();
+	});
 
-    const userData = { 
-        userId: id,
-        refreshTokenHash,
-        expiresAt: new Date()
-    };
-    
-    const session = await repository.create(userData);
-    expect(session).not.toBeNull();
-  });
+	it('should create a session for a user', async () => {
+		const id = idsUserTest[0] || 'str';
+		`test-refresh-token-${Date.now()}`;
+		const refreshTokenHash = `test-refresh-token-${Date.now()}`;
 
-  it('should throw DuplicateEntityError when creating a session with duplicate refreshTokenHash', async () => {
-    const id = idsUserTest[0] || 'str';
-    const refreshTokenHash = `duplicate-token-${Date.now()}`;
-    const userData = { 
-        userId: id,
-        refreshTokenHash,
-        expiresAt: new Date()
-    };  
+		const userData = {
+			userId: id,
+			refreshTokenHash,
+			expiresAt: new Date()
+		};
 
-    await repository.create(userData);
+		const session = await repository.create(userData);
+		expect(session).not.toBeNull();
+	});
 
-    await expect(repository.create({
-      ...userData,
-      expiresAt: new Date()
-    })).rejects.toBeInstanceOf(DuplicateEntityError);
+	it('should throw DuplicateEntityError when creating a session with duplicate refreshTokenHash', async () => {
+		const id = idsUserTest[0] || 'str';
+		const refreshTokenHash = `duplicate-token-${Date.now()}`;
+		const userData = {
+			userId: id,
+			refreshTokenHash,
+			expiresAt: new Date()
+		};
 
-    expect(logger.warn).toHaveBeenCalledWith('Database unique constraint violation on session creation', {
-        userId: userData.userId,
-        err: expect.any(Error),
-    });
-  });
+		await repository.create(userData);
 
-  it('should throw PersistenceError when creating a session with invalid data', async () => {
-    const id = idsUserTest[0] || 'str'; 
+		await expect(
+			repository.create({
+				...userData,
+				expiresAt: new Date()
+			})
+		).rejects.toBeInstanceOf(DuplicateEntityError);
 
-    const refreshTokenHash = `duplicate-token-${Date.now()}`;
-    const userData = {
-      userId: 'invalid-id',
-      refreshTokenHash,
-      expiresAt: new Date()
-    };
+		expect(logger.warn).toHaveBeenCalledWith(
+			'Database unique constraint violation on session creation',
+			{
+				userId: userData.userId,
+				err: expect.any(Error)
+			}
+		);
+	});
 
-    await expect(repository.create( 
-       userData)).rejects.toBeInstanceOf(PersistenceError);
+	it('should throw PersistenceError when creating a session with invalid data', async () => {
+		const id = idsUserTest[0] || 'str';
 
-    expect(logger.error).toHaveBeenCalledWith('Error creating session', {
-        userId: userData.userId,
-        err: expect.any(Error),
-    });
-  });
-  
+		const refreshTokenHash = `duplicate-token-${Date.now()}`;
+		const userData = {
+			userId: 'invalid-id',
+			refreshTokenHash,
+			expiresAt: new Date()
+		};
+
+		await expect(repository.create(userData)).rejects.toBeInstanceOf(PersistenceError);
+
+		expect(logger.error).toHaveBeenCalledWith('Error creating session', {
+			userId: userData.userId,
+			err: expect.any(Error)
+		});
+	});
 });

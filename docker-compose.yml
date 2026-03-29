@@ -4,7 +4,7 @@ services:
       context: ./authservice
       dockerfile: Dockerfile
     ports:
-      - "3001:3001"
+      - '3001:3001'
     environment:
       - NODE_ENV=production
     depends_on:
@@ -20,7 +20,7 @@ services:
       - POSTGRES_PASSWORD=adminpassword
       - POSTGRES_DB=authdb
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - db-data:/var/lib/postgresql/data
     networks:
