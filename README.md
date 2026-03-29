@@ -18,6 +18,7 @@ Goals:
 - Infrastructure must be replaceable
 - The system must remain testable and modular
 
+```bash
 src
 ├─ application
 │ ├─ services
@@ -36,6 +37,7 @@ src
 │ └─ security
 │
 └─ index.ts
+```
 
 ## Domain
 
@@ -158,6 +160,8 @@ Drizzle was chosen for:
 - SQL-like schema definitions
 
 Example structure:
+
+```bash
 src/infra/database
 ├─ schemas
 │ ├─ users
@@ -166,16 +170,20 @@ src/infra/database
 ├─ migrations
 └─ connection.ts
 
+```
 ---
 
 # Testing Strategy
 
 Testing is a **first-class concern** in this project.
+
+```bash
 tests
 └─ integration
 ├─ unit
 │ ├─ services
 │ └─ use-cases
+```
 
 ---
 
