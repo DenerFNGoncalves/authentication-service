@@ -1,11 +1,11 @@
-import 'express'
+import 'express';
 
 declare module 'express-serve-static-core' {
-  interface Request {
-    auth?: {
-      userId: string
-      sessionId: string
-      // roles?: string[]
-    }
-  }
+	interface Request {
+		auth?: {
+			userId: string;
+			sessionId: string;
+			// roles?: string[]
+		};
+	}
 }
