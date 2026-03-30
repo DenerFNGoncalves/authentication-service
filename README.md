@@ -1,338 +1,194 @@
-# Auth Service – Plugin Play Architecture
+# Auth Service
 
-Authentication microservice built with **Node.js, TypeScript and PostgreSQL**, designed as a reusable authentication core for future projects.
+Authentication microservice built with **Node.js**, **TypeScript**, **Express**, **PostgreSQL** and **Drizzle ORM**, designed around **Hexagonal Architecture**.
 
-This project explores **clean architecture, microservice boundaries, secure authentication flows and scalable infrastructure patterns**, while remaining lightweight enough to serve as a portfolio base.
+The goal of this project is to keep authentication rules isolated from frameworks and infrastructure details, so the service can evolve with clear boundaries between domain, application, and adapters.
 
-Instead of embedding authentication logic directly inside applications, this service acts as a **plug-and-play authentication provider** that can be reused across multiple systems.
+## Architecture
 
----
-
-# Architecture Philosophy
-
-This project follows **Hexagonal Architecture (Ports and Adapters)** to isolate business rules from infrastructure concerns.
-
-Goals:
-
-- Business logic must not depend on frameworks
-- Infrastructure must be replaceable
-- The system must remain testable and modular
+The codebase is organized around ports and adapters:
 
 ```bash
 src
 ├─ application
-│ ├─ services
-│ └─ use-cases
-|
+│  ├─ dtos
+│  ├─ ports
+│  ├─ services
+│  └─ use-cases
 ├─ bootstrap
-│
 ├─ domain
-│ ├─ entities
-│ └─ repositories (interfaces)
-│
+│  ├─ entities
+│  ├─ repositories
+│  └─ value-objects
 ├─ infra
-│ ├─ database
-| ├─ observability
-| ├─ http
-│ └─ security
-│
+│  ├─ config
+│  ├─ db
+│  ├─ http
+│  ├─ observability
+│  ├─ security
+│  └─ validation
 └─ index.ts
 ```
 
-## Domain
+### Layers
 
-Contains the **core business concepts** and repository contracts.
+- `domain`: core concepts, repository contracts and value objects
+- `application`: use cases, services, DTOs and ports
+- `infra`: HTTP controllers, database adapters, config, validation and security integrations
+- `bootstrap`: dependency wiring and application composition
 
-- No dependency on frameworks
-- Pure business logic
+### DTO Boundaries
 
----
+DTOs are intentionally different across `application` and `infra`.
 
-## Application
+- `infra` DTOs represent external input and output formats such as HTTP payloads, route params, headers, environment variables, or persistence shapes
+- `application` DTOs represent internal contracts used by use cases and services
 
-Contains **use cases and orchestration logic**.
+This separation keeps transport and framework details out of the application layer and makes normalization, validation, and mapping explicit at the system boundary.
 
-Examples:
+## Authentication Model
 
-- user authentication
-- token refresh
-- session validation
+The service uses:
 
----
-
-## Bootstrap
-
-Responsible for **starting the application and wiring dependencies**.
-
----
-
-## Infrastructure
-
-Implements adapters that interact with external systems:
-
-- PostgreSQL
-- HTTP layer
-- repository implementations
-- security
-  - password hashing
-  - JWT generation
-  - token validation
-
----
-
-# Authentication Model
-
-The service implements **JWT-based authentication with refresh token rotation**.
-
----
-
-## Access Token
-
-Short-lived token used for authentication.
-
-Typical lifetime:
-15 minutes
-
-Sent in requests using:
-Authorization: Bearer <token>
-
----
-
-## Refresh Token
-
-Long-lived token stored in the database.
-
-Used to generate new access tokens without requiring login again.
-
-Features supported:
-
+- short-lived JWT access tokens
 - refresh token rotation
 - sliding sessions
-- absolute session expiration
+- optional absolute session expiration
 
----
+This allows login flows to remain stateless on the access-token side while keeping session control and revocation in the database.
 
-## Token Rotation
+## Value Objects
 
-When a refresh token is used:
+The domain uses explicit **value objects** to improve invariants and type safety.
 
-1. The previous token becomes invalid
-2. A new refresh token is issued
-3. The database record is updated
+### Email
 
-This mitigates **token replay attacks**.
+`Email` is a branded string that:
 
----
+- trims input
+- normalizes to lowercase
+- validates format before creation
 
-## Sliding Sessions
+This keeps email normalization out of random parts of the code and guarantees that application services and repositories work with a validated domain value instead of a raw string.
 
-If enabled, each refresh operation extends the session lifetime.
+### Time
 
-Example:
-Initial expiration: 7 days
-User refreshes token on day 5
-Expiration extends another 7 days
+`Time` provides branded units such as:
 
----
+- `Minutes`
+- `Days`
+- `Milliseconds`
 
-## Absolute Expiration
+It also exposes conversion helpers, making session and token expiration rules more explicit and less error-prone.
 
-Defines a **maximum lifetime for a session**, regardless of refresh activity.
+## Validation with Zod
 
-Example:
-Max session lifetime: 30 days
+The project uses **Zod** for environment configuration validation.
 
-Even with sliding refresh, the session cannot exceed this limit.
+### Environment validation
 
----
+Environment configuration is validated through schemas in:
 
-# Database
+- [`src/infra/config/env.validation.ts`](src/infra/config/env.validation.ts)
+- [`src/infra/config/env.ts`](src/infra/config/env.ts)
+
+This improves startup safety by parsing and validating server and security configuration before the application finishes booting.
+
+## HTTP Layer Improvements
+
+The HTTP layer follows a controller-based boundary.
+
+- routes remain responsible for endpoint registration
+- controllers adapt HTTP requests to application DTOs
+- middlewares keep cross-cutting concerns such as auth and request context
+
+That makes request normalization and validation easier to test and easier to keep per-route.
+
+## Database
 
 The project uses:
 
 - **PostgreSQL**
-- **Drizzle ORM (Object Relational Mapper)**
+- **Drizzle ORM**
 
-Drizzle was chosen for:
+Database access is implemented through repository adapters under `src/infra/db/drizzle`, while repository contracts stay in the domain layer.
 
-- type safety
-- lightweight design
-- SQL-like schema definitions
+## Testing
 
-Example structure:
+Testing is split into:
 
-```bash
-src/infra/database
-├─ schemas
-│ ├─ users
-│ └─ refreshTokens
-│
-├─ migrations
-└─ connection.ts
+- **unit tests** for services, use cases and security helpers
+- **integration tests** for database adapters and authentication flows
 
-```
----
+The project uses **Jest** and **Testcontainers** to run integration tests against a real PostgreSQL instance.
 
-# Testing Strategy
+## Tooling and Code Quality
 
-Testing is a **first-class concern** in this project.
+The project uses standardized formatting and linting rules.
+
+- **ESLint** for lint rules
+- **Prettier** for formatting
+- shared formatting settings in [`formatting.config.mjs`](formatting.config.mjs)
+- convenience scripts for linting and formatting
+
+Available scripts:
 
 ```bash
-tests
-└─ integration
-├─ unit
-│ ├─ services
-│ └─ use-cases
+npm run lint
+npm run lint:fix
+npm run format
+npm run format:check
+npm run fix
 ```
 
----
+## Running the Project
 
-## Unit Tests
-
-Focus on **isolated business logic**.
-
-Dependencies are mocked.
-
-Examples:
-
-- authentication services
-- password hashing
-- token generation
-
----
-
-## Integration Tests
-
-Validate interactions with real infrastructure.
-
-Tools used:
-
-- **Testcontainers**
-- **Docker**
-
-This allows running **real PostgreSQL instances during tests**, ensuring:
-
-- realistic database behavior
-- migration validation
-- schema integrity testing
-
----
-
-# Security Considerations
-
-Several authentication security patterns are implemented.
-
----
-
-## Password Hashing
-
-Passwords are securely hashed before persistence.
-
-Plain text passwords are **never stored**.
-
----
-
-## Refresh Token Storage
-
-Refresh tokens are stored with metadata:
-
-- userId
-- expiration
-- rotation tracking
-- revocation status
-
----
-
-## Token Revocation
-
-Sessions can be revoked by:
-
-- invalidating refresh tokens
-- marking tokens as revoked
-
----
-
-# Future Improvements
-
-Planned evolutions include:
-
-## Redis Integration
-
-Using **Redis as a distributed cache** for:
-
-- token validation
-- session lookup
-- revocation lists
-
-Benefits:
-
-- faster token verification
-- improved scalability
-
----
-
-## Rate Limiting
-
-Protect authentication endpoints against brute-force attacks.
-
-Possible approaches:
-
-- Redis-based rate limiter
-- API Gateway policies
-
----
-
-## External Identity Providers
-
-Integration with identity providers such as:
-
-- OAuth providers
-- enterprise identity systems
-
----
-
-# Running the Project
-
-## Requirements
+### Requirements
 
 - Node.js
 - Docker
 - PostgreSQL
 
----
-
-## Install dependencies
+### Install dependencies
 
 ```bash
 npm install
 ```
 
-## Environment variables
+### Environment variables
 
-Use the example file as the starting point for local configuration:
+Use the example file as a starting point:
 
 ```bash
 cp .env.example .env
 ```
 
-On Windows PowerShell:
+PowerShell:
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
-Then adjust the values in `.env`, especially `DATABASE_URL` and `JWT_ACCESS_SECRET`, before starting the service.
+Then adjust the variables in `.env` before starting the service.
 
-## Scripts folder
-
-The `scripts/` folder contains small automation utilities used to keep operational tasks consistent across environments. Instead of relying on manual commands, these scripts centralize repetitive project actions and reduce naming mistakes.
-
-At the moment, `scripts/generate-migration.cjs` is used by `npm run db:generate` to create Drizzle migrations with a UTC timestamp in the file name, which helps keep migration history ordered and easier to identify.
-
-Main database commands:
+### Database commands
 
 ```bash
 npm run db:generate
 npm run db:migrate
 npm run db:studio
+```
+
+### Development
+
+```bash
+npm run dev
+```
+
+### Tests
+
+```bash
+npm test
+npm run test:u
+npm run test:i
 ```
