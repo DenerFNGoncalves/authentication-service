@@ -2,16 +2,8 @@ import type { UserRepository } from '@/domain/repositories/user';
 import type { PasswordHasher } from '../ports/password-hasher';
 import { InvalidCredentialsError } from '../errors/invalid-credentials';
 import type { Logger } from '../ports/logger';
-
-export interface AuthenticatedUser {
-	id: string;
-	email: string;
-}
-
-export interface Credentials {
-	email: string;
-	password: string;
-}
+import type { Credential } from '../dtos/credential';
+import { AuthenticatedUser } from '../dtos/authenticated-user';
 
 export class LoginService {
 	constructor(
@@ -20,7 +12,7 @@ export class LoginService {
 		private readonly passwordService: PasswordHasher
 	) {}
 
-	async validate(credentials: Credentials): Promise<AuthenticatedUser> {
+	async validate(credentials: Credential): Promise<AuthenticatedUser> {
 		const { email, password } = credentials;
 		const user = await this.userRepository.findByEmail(email);
 
@@ -36,10 +28,7 @@ export class LoginService {
 
 		const isValid = await this.passwordService.compare(password, user.passwordHash);
 		if (isValid) {
-			return {
-				id: user.id,
-				email: user.email
-			};
+			return AuthenticatedUser.create(user.id, user.email);
 		}
 
 		this.logger.warn('Login attempt failed', {
