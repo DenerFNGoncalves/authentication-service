@@ -4,8 +4,8 @@ import type { SessionRepository } from '@/domain/repositories/session';
 import type { Session } from '@/domain/entities/session';
 import { DuplicateEntityError } from '@/domain/errors/duplicate-entity-error';
 import { SessionCreationError } from '../errors/session-creation-error';
-import ms, { type StringValue } from 'ms';
 import type { Logger } from '../ports/logger';
+import { Time, type Days, type Milliseconds } from '@/domain/value-objects/time';
 
 export interface CreatedSession {
 	sessionId: string;
@@ -15,22 +15,27 @@ export interface CreatedSession {
 
 export interface SessionServiceConfig {
 	creationAttempts: number;
-	refreshTokenTtl: StringValue;
-	absoluteSessionTtl: StringValue | undefined;
+	refreshTokenTtl: Days;
+	absoluteSessionTtl: Days | undefined;
 }
 
-export class SessionService {
-	private readonly ttlMs: number;
+const getExpirationDays = (ttl: Days | undefined): Date | null => {
+	if (ttl === undefined) {
+		return null;
+	}
 
+	const ttlMs = Time.days.toMilliseconds(ttl);
+	return new Date(Date.now() + ttlMs);
+};
+
+export class SessionService {
 	constructor(
 		private readonly logger: Logger,
 		private readonly sessionRepository: SessionRepository,
 		private readonly tokenGenerator: TokenGenerator,
 		private readonly passwordHasher: PasswordHasher,
 		private readonly sessionConfigs: SessionServiceConfig
-	) {
-		this.ttlMs = ms(this.sessionConfigs.refreshTokenTtl);
-	}
+	) {}
 
 	async create(userId: string): Promise<CreatedSession> {
 		const refreshToken = this.tokenGenerator.generate();
@@ -54,6 +59,8 @@ export class SessionService {
 	private async createSession(userId: string, refreshToken: string): Promise<Session> {
 		const attempts = this.sessionConfigs.creationAttempts;
 
+		const { absoluteSessionTtl, refreshTokenTtl } = this.sessionConfigs;
+
 		for (let attempt = 0; attempt < attempts; attempt++) {
 			try {
 				this.logger.info('Attempting to create session', {
@@ -67,8 +74,8 @@ export class SessionService {
 				const session = await this.sessionRepository.create({
 					userId,
 					refreshTokenHash,
-					expiresAt: this.calculateExpiration(this.ttlMs),
-					absoluteExpiresAt: this.calculateExpiration(this.ttlMs * 2)
+					expiresAt: getExpirationDays(refreshTokenTtl) as Date,
+					absoluteExpiresAt: getExpirationDays(absoluteSessionTtl) as Date | null
 				});
 
 				return session;
@@ -106,9 +113,5 @@ export class SessionService {
 			)
 		});
 		throw new SessionCreationError();
-	}
-
-	private calculateExpiration(ttl: number): Date {
-		return new Date(Date.now() + ttl);
 	}
 }
