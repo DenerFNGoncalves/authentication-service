@@ -15,6 +15,8 @@ import { sessions, users } from '@/infra/db/drizzle/schemas';
 import type { User } from '@/domain/entities/user';
 import type { Session } from '@/domain/entities/session';
 import type { Logger } from '@/application/ports/logger';
+import { Time } from '@/domain/value-objects/time';
+import { Email } from '@/domain/value-objects/email';
 
 jest.setTimeout(30000);
 
@@ -47,8 +49,8 @@ describe('LoginUseCase (integration)', () => {
 			passwordHasher,
 			{
 				creationAttempts: 3,
-				refreshTokenTtl: '15m',
-				absoluteSessionTtl: '30d'
+				refreshTokenTtl: Time.days(15),
+				absoluteSessionTtl: Time.days(30)
 			}
 		);
 
@@ -63,13 +65,13 @@ describe('LoginUseCase (integration)', () => {
 		const password = '123456';
 		const passwordHasher = new BcryptPasswordHasher();
 		const hashed = await passwordHasher.hash(password);
-		const email = 'test1@test.com';
+		const email = Email.create('test1@test.com');
 
 		const insertedUsers = await db
 			.insert(users)
 			.values({
 				username: 'Test User 1',
-				email,
+				email: email,
 				passwordHash: hashed
 			})
 			.returning();
@@ -98,9 +100,9 @@ describe('LoginUseCase (integration)', () => {
 		const sessionsInDb = await db.select().from(sessions);
 		expect(sessionsInDb.length || 0).toBeGreaterThan(0);
 
-		const session = sessionsInDb[0] as Session;
-		const user = insertedUsers[0] as User;
+		const sessionUserId = sessionsInDb[0]?.userId || 'invalid-relation-userid';
+		const userId = insertedUsers[0]?.id || 'invalid-user-id';
 
-		expect(session.userId).toBe(user.id);
+		expect(sessionUserId).toBe(userId);
 	});
 });

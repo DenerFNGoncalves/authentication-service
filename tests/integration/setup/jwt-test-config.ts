@@ -1,6 +1,6 @@
-import type { StringValue } from 'ms';
+import { Time } from '@/domain/value-objects/time';
 
 export const jwtTestConfig = {
 	accessSecret: 'integration-test-secret',
-	expiresIn: '3min' as StringValue
+	expiresIn: Time.minutes(3)
 };

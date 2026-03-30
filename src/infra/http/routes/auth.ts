@@ -1,15 +1,12 @@
 import type { Request, Response } from 'express';
-import type { LoginUseCase } from '@/application/use-cases/login';
 import { Router } from 'express';
 import type { RequestHandlerParams } from 'express-serve-static-core';
 
-export const createAuthRoutes = (authGuard: RequestHandlerParams<any>, service: LoginUseCase) => {
+export const createAuthRoutes = (authGuard: RequestHandlerParams<any>, controllers: any) => {
 	const router = Router();
 
-	router.post('/login', async (req: Request, res: Response) => {
-		const result = await service.execute(req.body);
-		res.json(result);
-	});
+	const { loginController } = controllers;
+	router.post('/login', (req: Request, res: Response) => loginController.handle(req, res));
 
 	router.post('/logout', authGuard, async (req: Request, res: Response) => {
 		// logout logic to be implemented

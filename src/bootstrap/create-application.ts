@@ -13,6 +13,7 @@ import { JwtAccessTokenGenerator } from '@/infra/security/jwt-access-token-gener
 import { CryptoTokenGenerator } from '@/infra/security/crypto-token-generator';
 
 import { PinoLogger } from '@/infra/observability/logger/pino-logger';
+import { LoginController } from '@/infra/http/controllers/login';
 
 export function createApplication() {
 	const logger = new PinoLogger(config.logger);
@@ -48,10 +49,12 @@ export function createApplication() {
 
 	const loginUseCase = new LoginUseCase(logger, loginService, sessionService, accessTokenGenerator);
 
+	const loginController = new LoginController(loginUseCase);
+
 	return {
 		logger,
-		useCases: {
-			loginUseCase
+		controllers: {
+			loginController
 		}
 	};
 }

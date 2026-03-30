@@ -1,8 +1,9 @@
-import type { LoginService, Credentials } from '../services/login';
+import type { LoginService } from '../services/login';
 import type { SessionService } from '../services/session';
 import type { AccessTokenGenerator } from '../ports/access-token-generator';
 
-import type { AuthenticatedSession } from '../dtos/authenticated-session';
+import type { Credential } from '../dtos/credential';
+import type { SessionTokens } from '../dtos/session-tokens';
 import type { Logger } from '../ports/logger';
 
 export class LoginUseCase {
@@ -13,17 +14,17 @@ export class LoginUseCase {
 		private readonly accessTokenService: AccessTokenGenerator
 	) {}
 
-	async execute(credentials: Credentials): Promise<AuthenticatedSession> {
+	async execute(credential: Credential): Promise<SessionTokens> {
 		this.logger.info('Login attempt', {
 			event: 'auth.login',
 			stage: 'attempt',
-			email: credentials.email
+			email: credential.email
 		});
 
-		const user = await this.loginService.validate(credentials);
+		const user = await this.loginService.validate(credential);
 		const session = await this.sessionService.create(user.id);
 
-		const accessToken = this.accessTokenService.createAccessToken(user.id, session.sessionId);
+		const result = this.accessTokenService.createAccessToken(user.id, session.sessionId);
 
 		this.logger.info('Login successful', {
 			event: 'auth.login',
@@ -33,8 +34,9 @@ export class LoginUseCase {
 		});
 
 		return {
-			accessToken,
-			refreshToken: session.refreshToken
+			accessToken: result.accessToken,
+			refreshToken: session.refreshToken,
+			expiresIn: result.expiresIn
 		};
 	}
 }
