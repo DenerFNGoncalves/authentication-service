@@ -10,11 +10,11 @@ import { getErrorHandler } from '@/infra/http/middlewares/error.handler';
 export function createServer() {
 	const app = express();
 
-	const { useCases, logger } = createApplication();
+	const { controllers, logger } = createApplication();
 
 	const jwsAuthGuard = getJwtAuthGuardMiddleware(logger, config.jws);
 
-	const authRoutes = createAuthRoutes(jwsAuthGuard, useCases.loginUseCase);
+	const authRoutes = createAuthRoutes(jwsAuthGuard, controllers);
 
 	app.use(express.json());
 	app.use(requestContextMiddleware);

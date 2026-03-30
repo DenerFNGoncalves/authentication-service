@@ -3,7 +3,7 @@ import type { JwtPayload } from '../types/jwt-payload';
 import type { JWSConfig } from '@/infra/config/jws.config';
 
 import jwt from 'jsonwebtoken';
-import { UnauthorizedError } from '../errors/unauthorized';
+import { UnauthorizedError } from '../errors/unauthorized.error';
 import type { Logger } from '@/application/ports/logger';
 
 const extractBearer = (req: Request): string => {
