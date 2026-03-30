@@ -3,7 +3,7 @@ import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 import jwt from 'jsonwebtoken';
 import type { JWSConfig } from '@/infra/config/jws.config';
 import { getJwtAuthGuardMiddleware } from '@/infra/http/middlewares/jwt-auth-guard';
-import { UnauthorizedError } from '@/infra/http/errors/unauthorized';
+import { UnauthorizedError } from '@/infra/http/errors/unauthorized.error';
 import type { Logger } from '@/application/ports/logger';
 
 describe('JwtAuthGuardMiddleware', () => {

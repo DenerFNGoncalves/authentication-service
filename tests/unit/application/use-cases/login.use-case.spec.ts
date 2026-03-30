@@ -1,10 +1,13 @@
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 import { LoginUseCase } from '@/application/use-cases/login';
 
-import type { LoginService, Credentials } from '@/application/services/login';
+import type { LoginService } from '@/application/services/login';
 import type { SessionService } from '@/application/services/session';
 import type { AccessTokenGenerator } from '@/application/ports/access-token-generator';
 import type { Logger } from '@/application/ports/logger';
+import type { Credential } from '@/application/dtos/credential';
+import { Time } from '@/domain/value-objects/time';
+import { Email } from '@/domain/value-objects/email';
 
 describe('LoginUseCase', () => {
 	let logger: jest.Mocked<Logger>;
@@ -38,14 +41,14 @@ describe('LoginUseCase', () => {
 	});
 
 	it('should authenticate user and return access and refresh tokens', async () => {
-		const credentials: Credentials = {
-			email: 'unit@test.com',
+		const credentials: Credential = {
+			email: Email.create('unit@test.com'),
 			password: 'test123'
 		};
 
 		loginService.validate.mockResolvedValue({
 			id: 'test-user-id',
-			email: 'unit@test.com'
+			email: Email.create('unit@test.com')
 		});
 
 		sessionService.create.mockResolvedValue({
@@ -54,7 +57,10 @@ describe('LoginUseCase', () => {
 			refreshToken: 'refresh-token-abc'
 		});
 
-		accessTokenService.createAccessToken.mockReturnValue('access-token-xyz');
+		accessTokenService.createAccessToken.mockReturnValue({
+			accessToken: 'access-token-xyz',
+			expiresIn: Time.minutes(15)
+		});
 
 		const result = await useCase.execute(credentials);
 
@@ -78,7 +84,8 @@ describe('LoginUseCase', () => {
 
 		expect(result).toEqual({
 			accessToken: 'access-token-xyz',
-			refreshToken: 'refresh-token-abc'
+			refreshToken: 'refresh-token-abc',
+			expiresIn: Time.minutes(15)
 		});
 	});
 });
