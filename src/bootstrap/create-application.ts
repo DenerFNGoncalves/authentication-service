@@ -1,8 +1,9 @@
 import { config } from '@/infra/config';
 
-import { createDrizzleDb } from '@/infra/db/drizzle/client';
-import { DrizzleUserRepository } from '@/infra/db/drizzle/repositories/user';
-import { DrizzleSessionRepository } from '@/infra/db/drizzle/repositories/session';
+import { createAuthDb } from '@/infra/database/auth/drizzle/client';
+import { DrizzleUserRepository } from '@/infra/database/auth/drizzle/repositories/user';
+import { DrizzleSessionRepository } from '@/infra/database/auth/drizzle/repositories/session';
+
 
 import { LoginUseCase } from '@/application/use-cases/login';
 import { LoginService } from '@/application/services/login';

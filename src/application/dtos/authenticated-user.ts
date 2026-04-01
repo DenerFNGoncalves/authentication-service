@@ -1,4 +1,4 @@
-import { Email } from '@/domain/value-objects/email';
+import { Email } from '@/domain/auth/value-objects/email';
 
 export type AuthenticatedUser = {
 	id: string;

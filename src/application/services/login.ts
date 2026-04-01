@@ -1,4 +1,4 @@
-import type { UserRepository } from '@/domain/repositories/user';
+import type { UserRepository } from '@/domain/auth/repositories/user';
 import type { PasswordHasher } from '../ports/password-hasher';
 import { InvalidCredentialsError } from '../errors/invalid-credentials';
 import type { Logger } from '../ports/logger';

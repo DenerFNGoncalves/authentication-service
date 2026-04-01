@@ -1,11 +1,11 @@
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import type { Session } from '@/domain/entities/session';
-import type { SessionRepository } from '@/domain/repositories/session';
+import type { Session } from '@/domain/auth/entities/session';
+import type { SessionRepository } from '@/domain/auth/repositories/session';
 
 import { sessions } from '../schemas/sessions';
-import { PersistenceError } from '@/domain/errors/persistence-error';
-import { DuplicateEntityError } from '@/domain/errors/duplicate-entity-error';
-import * as schema from '@/infra/db/drizzle/schemas/index';
+import { PersistenceError } from '@/domain/auth/errors/persistence-error';
+import { DuplicateEntityError } from '@/domain/auth/errors/duplicate-entity-error';
+import * as schema from '../schemas/index';
 import type { Logger } from '@/application/ports/logger';
 
 export class DrizzleSessionRepository implements SessionRepository {
