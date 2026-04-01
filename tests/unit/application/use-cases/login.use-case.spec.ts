@@ -6,8 +6,8 @@ import type { SessionService } from '@/application/services/session';
 import type { AccessTokenGenerator } from '@/application/ports/access-token-generator';
 import type { Logger } from '@/application/ports/logger';
 import type { Credential } from '@/application/dtos/credential';
-import { Time } from '@/domain/value-objects/time';
-import { Email } from '@/domain/value-objects/email';
+import { Time } from '@/domain/auth/value-objects/time';
+import { Email } from '@/domain/auth/value-objects/email';
 
 describe('LoginUseCase', () => {
 	let logger: jest.Mocked<Logger>;

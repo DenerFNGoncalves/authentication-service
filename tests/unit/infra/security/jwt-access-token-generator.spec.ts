@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from '@jest/globals';
 import { JwtAccessTokenGenerator } from '@/infra/security/jwt-access-token-generator';
 import { verify as jwtVerifyToken } from 'jsonwebtoken';
-import { Time, type Minutes } from '@/domain/value-objects/time';
+import { Time, type Minutes } from '@/domain/auth/value-objects/time';
 
 describe('JwtAccessTokenGenerator', () => {
 	let jwtConfig: { accessSecret: string; expiresIn: Minutes };

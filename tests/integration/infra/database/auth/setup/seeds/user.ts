@@ -1,5 +1,5 @@
-import { users } from '@/infra/db/drizzle/schemas/users';
-import * as schema from '@/infra/db/drizzle/schemas/index';
+import { users } from '@/infra/database/auth/drizzle/schemas/users';
+import * as schema from '@/infra/database/auth/drizzle/schemas/index';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 
 export const idsUserTest: string[] = ['053e058d-00db-4760-9244-f67d60fc387e'];

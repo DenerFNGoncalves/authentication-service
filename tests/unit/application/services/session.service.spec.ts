@@ -2,10 +2,11 @@ import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 import { SessionService, type SessionServiceConfig } from '@/application/services/session';
 import type { PasswordHasher } from '@/application/ports/password-hasher';
 import type { Logger } from '@/application/ports/logger';
-import type { SessionRepository } from '@/domain/repositories/session';
+import type { SessionRepository } from '@/domain/auth/repositories/session';
 import type { TokenGenerator } from '@/application/ports/token-generator';
-import { DuplicateEntityError } from '@/domain/errors/duplicate-entity-error';
+import { DuplicateEntityError } from '@/domain/auth/errors/duplicate-entity-error';
 import { SessionCreationError } from '@/application/errors/session-creation-error';
+import { Time } from '@/domain/auth/value-objects/time';
 
 describe('Session Service', () => {
 	let logger: jest.Mocked<Logger>;
@@ -40,8 +41,8 @@ describe('Session Service', () => {
 
 		const configSession: SessionServiceConfig = {
 			creationAttempts: 3,
-			refreshTokenTtl: '15m',
-			absoluteSessionTtl: '30d'
+			refreshTokenTtl: Time.days(15),
+			absoluteSessionTtl: Time.days(30)
 		};
 
 		sessionService = new SessionService(
