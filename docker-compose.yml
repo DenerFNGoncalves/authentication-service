@@ -22,13 +22,29 @@ services:
     ports:
       - '5432:5432'
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - auth-db-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    restart: unless-stopped
+  
+  dbaudit:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=audit
+      - POSTGRES_PASSWORD=auditpassword
+      - POSTGRES_DB=auditdb
+    ports:
+      - '5433:5432'
+    volumes:
+      - audit-db-data:/var/lib/postgresql/data
     networks:
       - app-network
     restart: unless-stopped
 
+
 volumes:
-  db-data:
+  auth-db-data:
+  audit-db-data:
 
 networks:
   app-network:

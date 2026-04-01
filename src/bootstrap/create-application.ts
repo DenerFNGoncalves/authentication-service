@@ -18,9 +18,10 @@ import { LoginController } from '@/infra/http/controllers/login';
 export function createApplication() {
 	const logger = new PinoLogger(config.logger);
 
-	const db = createDrizzleDb();
+	const authDB = createAuthDb(config.authDb);
 
-	const userRepository = new DrizzleUserRepository(db);
+	const userRepository = new DrizzleUserRepository(authDB);
+	const sessionRepository = new DrizzleSessionRepository(logger, authDB);
 
 	const sessionRepository = new DrizzleSessionRepository(logger, db);
 

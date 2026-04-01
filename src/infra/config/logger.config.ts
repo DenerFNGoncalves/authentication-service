@@ -1,4 +1,4 @@
-import { SERVER } from './env';
+import { ENV_CONFIG } from './env';
 
 export type LoggerConfig = {
 	level: string;
@@ -20,10 +20,10 @@ function getLogLevel(levelString: string): string {
 
 export function loadLoggerConfig(): LoggerConfig {
 	return Object.freeze({
-		level: getLogLevel(SERVER.LOG_LEVEL),
+		level: getLogLevel(ENV_CONFIG.LOG_LEVEL),
 		base: {
-			serviceName: SERVER.SERVICE_NAME,
-			env: SERVER.NODE_ENV
+			serviceName: ENV_CONFIG.SERVICE_NAME,
+			env: ENV_CONFIG.NODE_ENV
 		}
 	});
 }

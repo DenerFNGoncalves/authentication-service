@@ -12,6 +12,9 @@ const name = `db_auth_${getUtcTimestamp()}`;
 
 console.log(`Generating migration: ${name}`);
 
-execSync(`npx drizzle-kit generate --name ${name}`, {
-	stdio: 'inherit'
-});
+execSync(
+	`npx drizzle-kit generate --name ${name} --config ./scripts/drizzle/audit.drizzle-config.ts`,
+	{
+		stdio: 'inherit'
+	}
+);

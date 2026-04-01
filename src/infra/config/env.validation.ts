@@ -3,7 +3,7 @@ import * as z from 'zod';
 const ENVIRONMENTS = ['development', 'production'] as const;
 const LOG_LEVELS = ['debug', 'info', 'warn', 'error'] as const;
 
-export const EnvServerSchema = z.object({
+export const EnvSchema = z.object({
 	NODE_ENV: z
 		.string()
 		.trim()
@@ -23,10 +23,9 @@ export const EnvServerSchema = z.object({
 		.toLowerCase()
 		.refine((value) => LOG_LEVELS.includes(value as any), {
 			message: 'LOG_LEVEL must be one of debug, info, warn, or error'
-		})
-});
-
-export const EnvSecuritySchema = z.object({
+		}),
+	DATABASE_AUTH_URL: z.string().trim().min(1, 'DATABASE_AUTH_URL is required'),
+	DATABASE_AUDIT_URL: z.string().trim().min(1, 'DATABASE_AUDIT_URL is required'),
 	JWT_ACCESS_SECRET: z.string().min(1, 'JWT_ACCESS_SECRET is required'),
 	SESSION: z.object({
 		SESSION_CREATION_ATTEMPTS: z

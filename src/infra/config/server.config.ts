@@ -1,4 +1,4 @@
-import { SERVER } from '@/infra/config/env';
+import { ENV_CONFIG } from '@/infra/config/env';
 
 export type ServerConfig = {
 	port: number;
@@ -8,8 +8,8 @@ export type ServerConfig = {
 
 export function loadServerConfig(): ServerConfig {
 	return Object.freeze({
-		port: SERVER.PORT,
-		env: SERVER.NODE_ENV,
-		name: SERVER.SERVICE_NAME
+		port: ENV_CONFIG.PORT,
+		env: ENV_CONFIG.NODE_ENV,
+		name: ENV_CONFIG.SERVICE_NAME
 	});
 }
