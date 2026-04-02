@@ -17,6 +17,7 @@ export class LoginService {
 		const user = await this.userRepository.findByEmail(email);
 
 		if (!user) {
+			// future feat: add to telemetry system this failed attempt with email (but not password)
 			this.logger.warn('Login attempt failed', {
 				event: 'auth.login',
 				result: 'failure',
@@ -31,6 +32,7 @@ export class LoginService {
 			return AuthenticatedUser.create(user.id, user.email);
 		}
 
+		// future feat: add to telemetry system this failed attempt with password (but not email)
 		this.logger.warn('Login attempt failed', {
 			event: 'auth.login',
 			result: 'failure',

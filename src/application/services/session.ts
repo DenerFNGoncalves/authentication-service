@@ -81,6 +81,7 @@ export class SessionService {
 				return session;
 			} catch (error) {
 				if (error instanceof DuplicateEntityError) {
+					// future feat: add metric to track how often this happens
 					this.logger.warn('Duplicate session detected, retrying session creation', {
 						userId,
 						attempt: attempt + 1,
@@ -91,6 +92,7 @@ export class SessionService {
 					continue;
 				}
 
+				// future feat: add metric to track how often this happens
 				this.logger.error('Unexpected error during session creation', {
 					userId,
 					attempt: attempt + 1,
@@ -102,6 +104,7 @@ export class SessionService {
 			}
 		}
 
+		// future feat: add metric to track how often this happens
 		this.logger.error('Failed to create session after maximum attempts', {
 			userId,
 			attempt: attempts + 1,

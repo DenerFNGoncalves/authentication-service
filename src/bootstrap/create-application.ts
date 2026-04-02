@@ -17,6 +17,7 @@ import { CryptoTokenGenerator } from '@/infra/security/crypto-token-generator';
 
 import { PinoLogger } from '@/infra/observability/logger/pino-logger';
 import { LoginController } from '@/infra/http/controllers/login';
+import { AuditEventServiceImpl } from '@/infra/observability/audit/audit-event.service';
 
 export function createApplication() {
 	const logger = new PinoLogger(config.logger);
@@ -28,6 +29,7 @@ export function createApplication() {
 
 	const auditDB = createAuditDb(config.auditDb);
 	const auditEventRepository = new DrizzleAuditEventRepository(auditDB);
+	const auditEventService = new AuditEventServiceImpl(auditEventRepository);
 
 	const passwordHasher = new BcryptPasswordHasher();
 
@@ -52,7 +54,13 @@ export function createApplication() {
 
 	const loginService = new LoginService(logger, userRepository, passwordHasher);
 
-	const loginUseCase = new LoginUseCase(logger, loginService, sessionService, accessTokenGenerator);
+	const loginUseCase = new LoginUseCase(
+		logger,
+		loginService,
+		sessionService,
+		accessTokenGenerator,
+		auditEventService
+	);
 
 	const loginController = new LoginController(loginUseCase);
 
