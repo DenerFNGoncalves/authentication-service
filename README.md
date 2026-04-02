@@ -57,6 +57,16 @@ The service uses:
 
 This allows login flows to remain stateless on the access-token side while keeping session control and revocation in the database.
 
+## Audit Trail
+
+User actions can be recorded in a dedicated audit database.
+
+- each event stores actor, subject, occurrence time and optional metadata
+- request context data such as `requestId`, `ipAddress` and `userAgent` can be attached when available
+- audit persistence is treated as non-blocking
+
+This keeps observability and compliance data available without turning the audit subsystem into a single point of failure for authentication.
+
 ## Value Objects
 
 The domain uses explicit **value objects** to improve invariants and type safety.
@@ -113,6 +123,11 @@ The project uses:
 
 Database access is implemented through repository adapters under `src/infra/db/drizzle`, while repository contracts stay in the domain layer.
 
+The project currently maintains separate Drizzle adapters for:
+
+- the authentication database
+- the audit database
+
 ## Testing
 
 Testing is split into:
@@ -121,6 +136,8 @@ Testing is split into:
 - **integration tests** for database adapters and authentication flows
 
 The project uses **Jest** and **Testcontainers** to run integration tests against a real PostgreSQL instance.
+
+Audit-related coverage also verifies that authentication remains available even if audit event recording fails.
 
 ## Tooling and Code Quality
 
@@ -134,6 +151,8 @@ The project uses standardized formatting and linting rules.
 Available scripts:
 
 ```bash
+npm run build
+npm run build:tests
 npm run lint
 npm run lint:fix
 npm run format
@@ -184,6 +203,10 @@ npm run db:studio
 ```bash
 npm run dev
 ```
+
+`npm run build` emits the application to `/build`.
+
+`npm run build:tests` emits test artifacts to `/build-tests`.
 
 ### Tests
 
