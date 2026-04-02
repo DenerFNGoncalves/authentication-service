@@ -10,5 +10,11 @@ export interface AuditEvent {
 
 	subject?: Subject;
 
+	context?: {
+		ipAddress?: string;
+		userAgent?: string;
+		requestId?: string;
+	};
+
 	metadata?: Record<string, unknown>;
 }

@@ -15,7 +15,8 @@ export class DrizzleAuditEventRepository implements AuditEventRepository {
 			actorType: event.actor?.type || null,
 			subjectId: event.subject?.id || null,
 			subjectType: event.subject?.type || null,
-			metadata: event.metadata ? JSON.stringify(event.metadata) : null
+			context: event.context,
+			metadata: event.metadata
 		});
 	}
 }
