@@ -1,6 +1,6 @@
 import type { AccessTokens } from '@/application/dtos/session-tokens';
 import type { AccessTokenGenerator } from '@/application/ports/access-token-generator';
-import { Time, type Minutes } from '@/domain/value-objects/time';
+import { Time, type Minutes } from '@/domain/auth/value-objects/time';
 
 import jwt from 'jsonwebtoken';
 

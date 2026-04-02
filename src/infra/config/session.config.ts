@@ -1,5 +1,5 @@
-import { Time, type Days, type Minutes } from '@/domain/value-objects/time';
-import { SECURITY } from './env';
+import { Time, type Days, type Minutes } from '@/domain/auth/value-objects/time';
+import { ENV_CONFIG } from './env';
 
 export type SessionConfig = {
 	creationAttempts: number;
@@ -17,8 +17,8 @@ const defaultValues = Object.freeze({
 });
 
 const getConfigValue = <T>(
-	value: string | undefined,
-	parser: (input: string) => T,
+	value: number | undefined,
+	parser: (input: number) => T,
 	defaultValue: T
 ): T => {
 	if (value === undefined) {
@@ -29,26 +29,26 @@ const getConfigValue = <T>(
 
 export function loadSessionConfig(): SessionConfig {
 	const absoluteSessionTtl = getConfigValue(
-		SECURITY.SESSION.ABSOLUTE_SESSION_TTL,
-		(value) => Time.days(Number(value)),
+		ENV_CONFIG.SESSION.ABSOLUTE_SESSION_TTL,
+		(value) => Time.days(value),
 		undefined
 	);
 
 	const creationAttempts = getConfigValue(
-		SECURITY.SESSION.SESSION_CREATION_ATTEMPTS,
-		(value) => parseInt(value),
+		ENV_CONFIG.SESSION.SESSION_CREATION_ATTEMPTS,
+		(value) => value,
 		defaultValues.creationAttempts
 	);
 
 	const accessTokenTtl = getConfigValue(
-		SECURITY.SESSION.ACCESS_TOKEN_TTL,
-		(value) => Time.minutes(Number(value)),
+		ENV_CONFIG.SESSION.ACCESS_TOKEN_TTL,
+		(value) => Time.minutes(value),
 		defaultValues.accessTokenTtl
 	);
 
 	const refreshTokenTtl = getConfigValue(
-		SECURITY.SESSION.REFRESH_TOKEN_TTL,
-		(value) => Time.days(Number(value)),
+		ENV_CONFIG.SESSION.REFRESH_TOKEN_TTL,
+		(value) => Time.days(value),
 		defaultValues.refreshTokenTtl
 	);
 
@@ -56,8 +56,8 @@ export function loadSessionConfig(): SessionConfig {
 		creationAttempts,
 		accessTokenTtl,
 		refreshTokenTtl,
-		rotationEnabled: SECURITY.SESSION.SESSION_ROTATION_ENABLED,
-		slidingEnabled: SECURITY.SESSION.SESSION_SLIDING_ENABLED,
+		rotationEnabled: ENV_CONFIG.SESSION.ROTATION_ENABLED,
+		slidingEnabled: ENV_CONFIG.SESSION.SLIDING_ENABLED,
 		...(absoluteSessionTtl && { absoluteSessionTtl })
 	});
 }

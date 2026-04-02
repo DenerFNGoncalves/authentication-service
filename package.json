@@ -23,9 +23,12 @@
 		"test:u": "npm test tests/unit",
 		"test:i": "npm test tests/integration",
 		"test:watch": "npm test -- --watch",
-		"db:generate": "node scripts/generate-migration.cjs",
-		"db:migrate": "drizzle-kit migrate",
-		"db:studio": "drizzle-kit studio"
+		"authdb:generate": "node scripts/drizzle/auth.generate-migration.cjs",
+		"authdb:migrate": "drizzle-kit migrate --config ./scripts/drizzle/auth.drizzle-config.ts",
+		"authdb:studio": "drizzle-kit studio --config ./scripts/drizzle/auth.drizzle-config.ts",
+		"auditdb:generate": "node scripts/drizzle/audit.generate-migration.cjs",
+		"auditdb:migrate": "drizzle-kit migrate --config ./scripts/drizzle/audit.drizzle-config.ts",
+		"auditdb:studio": "drizzle-kit studio --config ./scripts/drizzle/audit.drizzle-config.ts"
 	},
 	"devDependencies": {
 		"@swc/core": "^1.15.10",

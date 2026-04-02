@@ -1,22 +1,23 @@
-import { setupTestDatabase, teardownTestDatabase } from '@tests/integration/setup/test-database';
-import { DrizzleUserRepository } from '@/infra/db/drizzle/repositories/user';
-import { DrizzleSessionRepository } from '@/infra/db/drizzle/repositories/session';
+import {
+	setupTestDatabase,
+	teardownTestDatabase
+} from '@tests/integration/infra/database/auth/setup/auth-test-database';
+import { DrizzleUserRepository } from '@/infra/database/auth/drizzle/repositories/user';
+import { DrizzleSessionRepository } from '@/infra/database/auth/drizzle/repositories/session';
 import { describe, it, expect, beforeAll, afterAll, jest } from '@jest/globals';
 import { BcryptPasswordHasher } from '@/infra/security/bcrypt-password-hasher';
 import { JwtAccessTokenGenerator } from '@/infra/security/jwt-access-token-generator';
-import { jwtTestConfig } from '@tests/integration/setup/jwt-test-config';
+import { jwtTestConfig } from '@tests/integration/infra/setup/jwt-test-config';
 import { LoginUseCase } from '@/application/use-cases/login';
 import { LoginService } from '@/application/services/login';
 import { SessionService } from '@/application/services/session';
 import { CryptoTokenGenerator } from '@/infra/security/crypto-token-generator';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import type { schema } from '@/infra/db/drizzle/schemas/runtime';
-import { sessions, users } from '@/infra/db/drizzle/schemas';
-import type { User } from '@/domain/entities/user';
-import type { Session } from '@/domain/entities/session';
+import type { schema } from '@/infra/database/auth/drizzle/schemas/runtime';
+import { sessions, users } from '@/infra/database/auth/drizzle/schemas';
 import type { Logger } from '@/application/ports/logger';
-import { Time } from '@/domain/value-objects/time';
-import { Email } from '@/domain/value-objects/email';
+import { Time } from '@/domain/auth/value-objects/time';
+import { Email } from '@/domain/auth/value-objects/email';
 
 jest.setTimeout(30000);
 

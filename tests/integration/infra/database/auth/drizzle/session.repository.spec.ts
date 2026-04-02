@@ -1,10 +1,13 @@
-import { setupTestDatabase, teardownTestDatabase } from '@tests/integration/setup/test-database';
-import { DrizzleSessionRepository } from '@/infra/db/drizzle/repositories/session';
+import {
+	setupTestDatabase,
+	teardownTestDatabase
+} from '@tests/integration/infra/database/auth/setup/auth-test-database';
+import { DrizzleSessionRepository } from '@/infra/database/auth/drizzle/repositories/session';
 import { describe, it, expect, beforeAll, afterAll, jest } from '@jest/globals';
-import { idsUserTest } from '@tests/integration/setup/seeds/user';
+import { idsUserTest } from '@tests/integration/infra/database/auth/setup/seeds/user';
 import type { Logger } from '@/application/ports/logger';
-import { DuplicateEntityError } from '@/domain/errors/duplicate-entity-error';
-import { PersistenceError } from '@/domain/errors/persistence-error';
+import { DuplicateEntityError } from '@/domain/auth/errors/duplicate-entity-error';
+import { PersistenceError } from '@/domain/auth/errors/persistence-error';
 
 describe('DrizzleSessionRepository (integration)', () => {
 	let db;
@@ -31,7 +34,6 @@ describe('DrizzleSessionRepository (integration)', () => {
 
 	it('should create a session for a user', async () => {
 		const id = idsUserTest[0] || 'str';
-		`test-refresh-token-${Date.now()}`;
 		const refreshTokenHash = `test-refresh-token-${Date.now()}`;
 
 		const userData = {
@@ -72,8 +74,6 @@ describe('DrizzleSessionRepository (integration)', () => {
 	});
 
 	it('should throw PersistenceError when creating a session with invalid data', async () => {
-		const id = idsUserTest[0] || 'str';
-
 		const refreshTokenHash = `duplicate-token-${Date.now()}`;
 		const userData = {
 			userId: 'invalid-id',

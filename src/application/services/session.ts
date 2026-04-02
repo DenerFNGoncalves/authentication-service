@@ -1,11 +1,11 @@
 import type { PasswordHasher } from '../ports/password-hasher';
 import type { TokenGenerator } from '../ports/token-generator';
-import type { SessionRepository } from '@/domain/repositories/session';
-import type { Session } from '@/domain/entities/session';
-import { DuplicateEntityError } from '@/domain/errors/duplicate-entity-error';
+import type { SessionRepository } from '@/domain/auth/repositories/session';
+import type { Session } from '@/domain/auth/entities/session';
+import { DuplicateEntityError } from '@/domain/auth/errors/duplicate-entity-error';
 import { SessionCreationError } from '../errors/session-creation-error';
 import type { Logger } from '../ports/logger';
-import { Time, type Days, type Milliseconds } from '@/domain/value-objects/time';
+import { Time, type Days, type Milliseconds } from '@/domain/auth/value-objects/time';
 
 export interface CreatedSession {
 	sessionId: string;

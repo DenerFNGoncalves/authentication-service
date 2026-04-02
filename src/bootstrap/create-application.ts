@@ -1,8 +1,11 @@
 import { config } from '@/infra/config';
 
-import { createDrizzleDb } from '@/infra/db/drizzle/client';
-import { DrizzleUserRepository } from '@/infra/db/drizzle/repositories/user';
-import { DrizzleSessionRepository } from '@/infra/db/drizzle/repositories/session';
+import { createAuthDb } from '@/infra/database/auth/drizzle/client';
+import { DrizzleUserRepository } from '@/infra/database/auth/drizzle/repositories/user';
+import { DrizzleSessionRepository } from '@/infra/database/auth/drizzle/repositories/session';
+
+import { createAuditDb } from '@/infra/database/audit/drizzle/client';
+import { DrizzleAuditEventRepository } from '@/infra/database/audit/drizzle/repositories/audit-event';
 
 import { LoginUseCase } from '@/application/use-cases/login';
 import { LoginService } from '@/application/services/login';
@@ -18,11 +21,13 @@ import { LoginController } from '@/infra/http/controllers/login';
 export function createApplication() {
 	const logger = new PinoLogger(config.logger);
 
-	const db = createDrizzleDb();
+	const authDB = createAuthDb(config.authDb);
 
-	const userRepository = new DrizzleUserRepository(db);
+	const userRepository = new DrizzleUserRepository(authDB);
+	const sessionRepository = new DrizzleSessionRepository(logger, authDB);
 
-	const sessionRepository = new DrizzleSessionRepository(logger, db);
+	const auditDB = createAuditDb(config.auditDb);
+	const auditEventRepository = new DrizzleAuditEventRepository(auditDB);
 
 	const passwordHasher = new BcryptPasswordHasher();
 

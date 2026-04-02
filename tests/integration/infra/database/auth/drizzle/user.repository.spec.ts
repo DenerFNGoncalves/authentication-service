@@ -1,7 +1,11 @@
-import { setupTestDatabase, teardownTestDatabase } from '@tests/integration/setup/test-database';
-import { DrizzleUserRepository } from '@/infra/db/drizzle/repositories/user';
+import {
+	setupTestDatabase,
+	teardownTestDatabase
+} from '@tests/integration/infra/database/auth/setup/auth-test-database';
+import { DrizzleUserRepository } from '@/infra/database/auth/drizzle/repositories/user';
 import { describe, it, expect, beforeAll, afterAll, jest } from '@jest/globals';
-import { idsUserTest } from '@tests/integration/setup/seeds/user';
+import { idsUserTest } from '@tests/integration/infra/database/auth/setup/seeds/user';
+import { Email } from '@/domain/auth/value-objects/email';
 
 describe('DrizzleUserRepository (integration)', () => {
 	let db;
@@ -25,7 +29,7 @@ describe('DrizzleUserRepository (integration)', () => {
 	});
 
 	it('should find a user by email', async () => {
-		const email = 'test@mail.com';
+		const email = Email.create('test@mail.com');
 		const user = await repository.findByEmail(email);
 
 		expect(user).not.toBeNull();

@@ -1,4 +1,4 @@
-import { Time } from '@/domain/value-objects/time';
+import { Time } from '@/domain/auth/value-objects/time';
 
 export const jwtTestConfig = {
 	accessSecret: 'integration-test-secret',

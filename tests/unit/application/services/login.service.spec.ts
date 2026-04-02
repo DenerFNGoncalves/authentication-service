@@ -1,9 +1,11 @@
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
-import { LoginService, type Credentials } from '@/application/services/login';
+import { LoginService } from '@/application/services/login';
 import type { PasswordHasher } from '@/application/ports/password-hasher';
 import type { Logger } from '@/application/ports/logger';
-import type { UserRepository } from '@/domain/repositories/user';
+import type { UserRepository } from '@/domain/auth/repositories/user';
 import { InvalidCredentialsError } from '@/application/errors/invalid-credentials';
+import type { Credential } from '@/application/dtos/credential';
+import { Email } from '@/domain/auth/value-objects/email';
 
 describe('Login Service', () => {
 	let logger: jest.Mocked<Logger>;
@@ -32,14 +34,14 @@ describe('Login Service', () => {
 	});
 
 	it('should login successfully', async () => {
-		const credentials: Credentials = {
-			email: 'unit@test.com',
+		const credentials: Credential = {
+			email: Email.create('unit@test.com'),
 			password: 'test123'
 		};
 
 		userRepository.findByEmail.mockResolvedValue({
 			id: 'test-user-id',
-			email: 'unit@test.com',
+			email: Email.create('unit@test.com'),
 			username: 'Test User',
 			passwordHash: 'hashedpassword123',
 			createdAt: new Date(),
@@ -54,13 +56,13 @@ describe('Login Service', () => {
 		expect(passwordHasher.compare).toHaveBeenCalledWith(credentials.password, 'hashedpassword123');
 		expect(result).toEqual({
 			id: 'test-user-id',
-			email: 'unit@test.com'
+			email: Email.create('unit@test.com')
 		});
 	});
 
 	it('should throw InvalidCredentialsError when user is not found', async () => {
-		const credentials: Credentials = {
-			email: 'notfound@test.com',
+		const credentials: Credential = {
+			email: Email.create('notfound@test.com'),
 			password: 'notfound'
 		};
 		userRepository.findByEmail.mockResolvedValue(null);
@@ -81,13 +83,13 @@ describe('Login Service', () => {
 	});
 
 	it('should throw InvalidCredentialsError when password is invalid', async () => {
-		const credentials: Credentials = {
-			email: 'unit@test.com',
+		const credentials: Credential = {
+			email: Email.create('unit@test.com'),
 			password: 'invalidpassword'
 		};
 		userRepository.findByEmail.mockResolvedValue({
 			id: 'test-user-id',
-			email: 'unit@test.com',
+			email: Email.create('unit@test.com'),
 			username: 'Test User',
 			passwordHash: 'hashedpassword123',
 			createdAt: new Date(),
