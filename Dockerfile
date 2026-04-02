@@ -18,4 +18,4 @@ RUN npm run build
 EXPOSE 3001
 
 # Comando de inicialização
-CMD ["node", "dist/index.js"]
+CMD ["node", "build/index.js"]

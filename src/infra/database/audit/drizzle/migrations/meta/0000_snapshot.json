@@ -1,5 +1,5 @@
 {
-  "id": "0f6e4d83-ebed-414c-8b41-54bd9b5d6b04",
+  "id": "b0c8ad4c-aa56-44a2-9f95-85ae2f844f7b",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -50,6 +50,12 @@
           "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": true
+        },
+        "context": {
+          "name": "context",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
         },
         "metadata": {
           "name": "metadata",

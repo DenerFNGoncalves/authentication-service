@@ -8,5 +8,6 @@ export const auditEvents = pgTable('audit_log', {
 	subjectId: varchar('subject_id', { length: 255 }),
 	subjectType: varchar('subject_type', { length: 50 }),
 	occurredAt: timestamp('occurred_at', { withTimezone: true }).notNull(),
-	metadata: jsonb()
+	context: jsonb('context'),
+	metadata: jsonb('metadata')
 });

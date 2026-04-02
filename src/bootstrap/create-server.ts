@@ -16,6 +16,7 @@ export function createServer() {
 
 	const authRoutes = createAuthRoutes(jwsAuthGuard, controllers);
 
+	app.set('trust proxy', true);
 	app.use(express.json());
 	app.use(requestContextMiddleware);
 	app.use('/api/auth', authRoutes);
