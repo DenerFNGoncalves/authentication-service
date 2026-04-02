@@ -4,6 +4,8 @@ import { createAuthDb } from '@/infra/database/auth/drizzle/client';
 import { DrizzleUserRepository } from '@/infra/database/auth/drizzle/repositories/user';
 import { DrizzleSessionRepository } from '@/infra/database/auth/drizzle/repositories/session';
 
+import { createAuditDb } from '@/infra/database/audit/drizzle/client';
+import { DrizzleAuditEventRepository } from '@/infra/database/audit/drizzle/repositories/audit-event';
 
 import { LoginUseCase } from '@/application/use-cases/login';
 import { LoginService } from '@/application/services/login';
@@ -24,7 +26,8 @@ export function createApplication() {
 	const userRepository = new DrizzleUserRepository(authDB);
 	const sessionRepository = new DrizzleSessionRepository(logger, authDB);
 
-	const sessionRepository = new DrizzleSessionRepository(logger, db);
+	const auditDB = createAuditDb(config.auditDb);
+	const auditEventRepository = new DrizzleAuditEventRepository(auditDB);
 
 	const passwordHasher = new BcryptPasswordHasher();
 
