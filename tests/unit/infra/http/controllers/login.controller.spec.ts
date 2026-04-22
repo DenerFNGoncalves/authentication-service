@@ -4,7 +4,7 @@ import { LoginController } from '@/infra/http/controllers/login';
 import type { LoginUseCase } from '@/application/use-cases/login';
 import { Time } from '@/domain/auth/value-objects/time';
 import { ValidationError } from '@/infra/http/errors/validation.error';
-import { InvalidCredentialsError } from '@/application/errors/invalid-credentials';
+import { UnauthorizedError } from '@/infra/http/errors/unauthorized.error';
 
 describe('LoginController', () => {
 	const makeReq = (body: unknown) => ({ body }) as any;
@@ -66,7 +66,7 @@ describe('LoginController', () => {
 			password: '123456'
 		});
 		const res = makeRes();
-		const error = new InvalidCredentialsError();
+		const error = new UnauthorizedError(new Error('Invalid credentials'), 'INVALID_CREDENTIALS');
 
 		loginUseCase.execute.mockRejectedValue(error);
 
