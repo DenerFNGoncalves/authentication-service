@@ -1,18 +1,27 @@
 import express from 'express';
-import { createApplication } from './create-application';
+import { createApplication, type ApplicationInstance, type CreateApplicationOverrides } from './create-application';
 
 import { config } from '@/infra/config';
 import { createAuthRoutes } from '@/infra/http/routes/auth';
 import { getJwtAuthGuardMiddleware } from '@/infra/http/middlewares/jwt-auth-guard';
 import { requestContextMiddleware } from '@/infra/http/middlewares/request-context';
 import { getErrorHandler } from '@/infra/http/middlewares/error.handler';
+import type { RequestHandlerParams } from 'express-serve-static-core';
 
-export function createServer() {
+export type CreateServerOptions = {
+	application?: ApplicationInstance;
+	applicationOverrides?: CreateApplicationOverrides;
+	jwsAuthGuard?: RequestHandlerParams<any>;
+};
+
+export function createServer(options: CreateServerOptions = {}) {
 	const app = express();
 
-	const { controllers, logger } = createApplication();
+	const { application, applicationOverrides, jwsAuthGuard: jwsAuthGuardOverride } = options;
 
-	const jwsAuthGuard = getJwtAuthGuardMiddleware(logger, config.jws);
+	const { controllers, logger } = application ?? createApplication(applicationOverrides);
+
+	const jwsAuthGuard = jwsAuthGuardOverride ?? getJwtAuthGuardMiddleware(logger, config.jws);
 
 	const authRoutes = createAuthRoutes(jwsAuthGuard, controllers);
 

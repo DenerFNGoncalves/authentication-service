@@ -1,6 +1,6 @@
 import * as z from 'zod';
 
-const ENVIRONMENTS = ['development', 'production'] as const;
+const ENVIRONMENTS = ['development', 'production', 'test'] as const;
 const LOG_LEVELS = ['debug', 'info', 'warn', 'error'] as const;
 
 export const EnvSchema = z.object({

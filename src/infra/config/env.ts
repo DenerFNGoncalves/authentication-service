@@ -3,7 +3,7 @@ import * as z from 'zod';
 
 const configs = EnvSchema.safeParse({
 	NODE_ENV: process.env.NODE_ENV || 'development',
-	PORT: process.env.PORT ? Number(process.env.PORT) : 3001,
+	PORT: process.env.PORT ?? '3001',
 	SERVICE_NAME: process.env.SERVICE_NAME ?? 'auth-service',
 	LOG_LEVEL: process.env.LOG_LEVEL ?? 'info',
 	DATABASE_AUTH_URL:
@@ -16,8 +16,8 @@ const configs = EnvSchema.safeParse({
 		ACCESS_TOKEN_TTL: process.env.ACCESS_TOKEN_TTL ?? '10',
 		REFRESH_TOKEN_TTL: process.env.REFRESH_TOKEN_TTL ?? '7',
 		ABSOLUTE_SESSION_TTL: process.env.ABSOLUTE_SESSION_TTL,
-		ROTATION_ENABLED: process.env.ROTATION_ENABLED === 'true',
-		SLIDING_ENABLED: process.env.SLIDING_ENABLED === 'true'
+		ROTATION_ENABLED: process.env.ROTATION_ENABLED ?? 'false',
+		SLIDING_ENABLED: process.env.SLIDING_ENABLED ?? 'false'
 	}
 });
 
