@@ -37,12 +37,12 @@ export function getJwtAuthGuardMiddleware(logger: Logger, jwtConfig: JWSConfig) 
 			};
 
 			return next();
-		} catch (err) {
+		} catch (err: Error | unknown) {
 			logger.error('Error verifying JWT', {
 				headers: { token: req.headers['authorization'] || 'Token not provided' },
 				err
 			});
-			return next(new UnauthorizedError());
+			return next(new UnauthorizedError(err as Error));
 		}
 	};
 }
